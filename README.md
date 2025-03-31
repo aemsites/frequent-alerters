@@ -1,5 +1,5 @@
-# Your Project's Title...
-Your project's description...
+# Frequent alerters templated comms
+A way to create a page per customer from a template
 
 ## Environments
 - Preview: https://main--frequent-alerters--aemsites.aem.page/
