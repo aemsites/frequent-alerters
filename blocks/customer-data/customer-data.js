@@ -11,25 +11,28 @@ export default async function decorate(block) {
       console.error('No customer data block found');
       return;
     }
-    const customerData = block.querySelector('p').innerText;
-    const customerDataList = customerData.split(',');
+    const customerDataCompanyIdFromPageBlock = block.querySelector('div div div:nth-child(2) p');
+    console.error('CustomerDataCompanyId:', customerDataCompanyIdFromPageBlock);
+    const customerDataCompanyName = customerDataCompanyIdFromPageBlock.innerHTML;
+    console.error('CustomerDataList:', customerDataCompanyName);
     block.innerHTML = '';
 
-    customerDataList.forEach((customerDataItem) => {
-      const customerDataObject = customerDataObjects.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataItem.toLowerCase().trim());
-      if (customerDataObject) {
-        if (customerDataList.length === 1 && customerDataObject.image) {
-          block.innerHTML += customerDataObject.outerHTML;
-        }
-        if (customerDataList.indexOf(customerDataItem) === 0) {
-          block.innerHTML += '<p> Customer details </p>';
-        }
-        block.innerHTML += `<a href="${customerDataObject.path}">${customerDataObject.customer_id}</a>${customerDataObject.alert_message}`;
-        if (customerDataList.indexOf(customerDataItem) < customerDataList.length - 1) {
-          block.innerHTML += '; ';
-        }
-      }
-    });
+    // const customerDataFromIndex = customerDataCompanyName.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataItem.toLowerCase().trim());
+    const customerDataFormattedProperly = customerDataCompanyName.toLowerCase().trim();
+    console.error('CustomerDataFromIndex:', customerDataFormattedProperly);
+    const customerDataToDisplay = customerDataObjects.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataFormattedProperly);
+    console.error('CustomerDataToDisplay:', customerDataToDisplay);
+    if (customerDataFormattedProperly) {
+      // if (customerDataCompanyName.length === 1 && customerDataHTMLOutputObject.image) {
+      //   block.innerHTML += customerDataHTMLOutputObject.outerHTML;
+      // }
+      block.innerHTML += '<h2><p> Customer details pulled from index</p></h2>';
+      block.innerHTML += `<a href="${customerDataToDisplay.path}">${customerDataToDisplay.path}</a>`;
+      block.innerHTML += `<p>Alert: ${customerDataToDisplay.alert_message}</p>`;
+      // if (customerDataCompanyName.indexOf(customerDataItem) < customerDataCompanyName.length - 1) {
+      //   block.innerHTML += '; ';
+      // }
+    }
 
     const children = Array.from(block.childNodes);
     const p = document.createElement('p');
