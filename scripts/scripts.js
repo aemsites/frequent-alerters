@@ -12,6 +12,8 @@ import {
   loadSections,
   loadCSS,
 } from './aem.js';
+import { renderExpressions } from './expressions.js';
+import './product-expressions.js';
 
 /**
  * Builds hero block and prepends to main in a new section.
@@ -65,6 +67,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  renderExpressions(main);
 }
 
 /**

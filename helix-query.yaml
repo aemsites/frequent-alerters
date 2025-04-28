@@ -1,0 +1,76 @@
+.excludes: &excludes
+  - '**/drafts/**'
+  - '**/images/**'
+  - '**/icons/**'
+  - '**/test/**'
+  - '**/fragments/**'
+  - '**/user_area/**'
+
+version: 1
+indices:
+  default:
+    include:
+      - /**
+    exclude:
+      - '**/drafts/**'
+      - '**/images/**'
+      - '**/icons/**'
+      - '**/fragments/**'
+      - '**/user_area/**'
+      - /tags
+      - /nav
+      - /footer
+    target: /query-index.json
+    properties:
+      title:
+        select: head > meta[property="og:title"]
+        value: attribute(el, "content")
+      image:
+        select: head > meta[property="og:image"]
+        value: match(attribute(el, "content"), "https:\/\/[^/]+(/.*)")
+      description:
+        select: head > meta[name="description"]
+        value: attribute(el, "content")
+      date:
+        select: head > meta[name="date"]
+        value: attribute(el, "content")
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      tags:
+        select: head > meta[name="article:tag"]
+        value: attribute(el, "content")
+
+  customer-data:
+    include:
+      - /customer-data/**
+    exclude: *excludes
+    target: /customer-data/query-index.json
+    properties:
+      customer_id:
+        select: head > meta[name="customer_id"]
+        value: attribute(el, "content")
+      alert_id:
+        select: head > meta[name="alert_id"]
+        value: attribute(el, "content")
+      alert_message:
+        select: head > meta[name="alert_message"]
+        value: attribute(el, "content")
+      lastModified:
+        select: none
+        value: parseTimestamp(headers["last-modified"], "ddd, DD MMM YYYY hh:mm:ss GMT")
+      date:
+        select: head > meta[name="date"]
+        value: attribute(el, "content")
+      tags:
+        select: head > meta[name="article:tag"]
+        value: attribute(el, "content")
+      cse:
+        select: head > meta[name="cse"]
+        value: attribute(el, "content")
+      csem:
+        select: head > meta[name="csem"]
+        value: attribute(el, "content")
+      lob_manager:
+        select: head > meta[name="lob_manager"]
+        value: attribute(el, "content")
