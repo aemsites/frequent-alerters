@@ -86,6 +86,36 @@ export async function getCustomerData() {
   return structuredClone(customerData);
 }
 
+export async function getCustomerNameOnly(block) {
+  try {
+    const customerDataObjects = await getCustomerData();
+    console.error('Customer data objects:', customerDataObjects);
+    const customerDataBlock = block.querySelector('div');
+    console.error('Customer data block:', customerDataBlock);
+    if (!customerDataBlock) {
+      console.error('No customer data block found');
+      return;
+    }
+    const customerDataCompanyIdFromPageBlock = block.querySelector('div div div:nth-child(2) p');
+    console.error('CustomerDataCompanyIdFromPageBlock:', customerDataCompanyIdFromPageBlock);
+    const customerDataCompanyName = customerDataCompanyIdFromPageBlock.innerHTML;
+    console.error('CustomerDataCompanyName:', customerDataCompanyName);
+    block.innerHTML = '';
+
+    const customerDataFormattedProperly = customerDataCompanyName.toLowerCase().trim();
+    console.error('CustomerDataFormattedProperly:', customerDataFormattedProperly);
+    // eslint-disable-next-line max-len
+    const customerDataToDisplay = customerDataObjects.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataFormattedProperly);
+    console.error('CustomerDataToDisplay:', customerDataToDisplay);
+    if (customerDataFormattedProperly) {
+      block.innerHTML += `${customerDataToDisplay.customer_id}`;
+    }
+  } catch (error) {
+    console.error(`Error loading query-index.json: ${error.message}`);
+    throw error;
+  }
+}
+
 let indexData = null;
 /**
  * Retrieves index data from the query-index file.

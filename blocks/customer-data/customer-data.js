@@ -12,14 +12,14 @@ export default async function decorate(block) {
       return;
     }
     const customerDataCompanyIdFromPageBlock = block.querySelector('div div div:nth-child(2) p');
-    console.error('CustomerDataCompanyId:', customerDataCompanyIdFromPageBlock);
+    console.error('CustomerDataCompanyIdFromPageBlock:', customerDataCompanyIdFromPageBlock);
     const customerDataCompanyName = customerDataCompanyIdFromPageBlock.innerHTML;
-    console.error('CustomerDataList:', customerDataCompanyName);
+    console.error('CustomerDataCompanyName:', customerDataCompanyName);
     block.innerHTML = '';
 
     // const customerDataFromIndex = customerDataCompanyName.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataItem.toLowerCase().trim());
     const customerDataFormattedProperly = customerDataCompanyName.toLowerCase().trim();
-    console.error('CustomerDataFromIndex:', customerDataFormattedProperly);
+    console.error('CustomerDataFormattedProperly:', customerDataFormattedProperly);
     const customerDataToDisplay = customerDataObjects.find((customerDataObj) => customerDataObj.customer_id.toLowerCase() === customerDataFormattedProperly);
     console.error('CustomerDataToDisplay:', customerDataToDisplay);
     if (customerDataFormattedProperly) {
