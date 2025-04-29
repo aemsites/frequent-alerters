@@ -16,7 +16,7 @@
   --light-color: #f8f8f8;
   --dark-color: #505050;
   --text-color: #353535;
-  --headline-color: #000;
+  --heading-color: #000;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
 
@@ -112,7 +112,7 @@ h5,
 h6 {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
-  color: var(--headline-color);
+  color: var(--heading-color);
   font-family: var(--heading-font-family);
   font-weight: 600;
   line-height: 1.25;
