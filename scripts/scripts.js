@@ -45,26 +45,12 @@ let hasFetchedCustomerData = false;
 let hasProcessedCustomerData = false;
 
 async function fetchCustomerData(customerId) {
-  if (hasFetchedCustomerData) return null; // prevent multiple fetches
+  if (hasFetchedCustomerData) return null;
   try {
     const response = await fetch('/all-customer-data.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
-    // make an array of the data from the rows
-    let rows;
-    if (Array.isArray(data)) {
-      rows = data;
-    } else if (data.rows) {
-      rows = data.rows;
-    } else if (data.data) {
-      rows = data.data;
-    } else {
-      console.error('Unexpected JSON structure:', data);
-      return null;
-    }
-    // Find the row that matches the customerId
+    const rows = Array.isArray(data) ? data : data.rows || data.data || [];
     const customerRow = rows.find((row) => row.customer_id === customerId);
     if (customerRow) {
       console.log('Customer data found:', customerRow);
@@ -83,18 +69,14 @@ export async function getDataByCustomerId() {
   if (hasProcessedCustomerData) return;
   const customerId = getMetadata('customer_id');
   const main = document.querySelector('main');
-  const html = main.innerHTML;
-  let newHtml = html.replaceAll('{customer_id}', customerId);
-  // Fetch customer data and replace all key/value pairs
+  let newHtml = main.innerHTML.replaceAll('{customer_id}', customerId);
+  
   const customerData = await fetchCustomerData(customerId);
-  console.log('Customer data for replacement:', customerData);
   if (customerData) {
     // Replace each key/value pair in the customer data
     Object.entries(customerData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        const placeholder = `{${key}}`;
-        console.log(`Replacing ${placeholder} with ${value}`);
-        newHtml = newHtml.replaceAll(placeholder, value);
+      if (value != null) {
+        newHtml = newHtml.replaceAll(`{${key}}`, value);
       }
     });
   }
