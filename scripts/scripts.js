@@ -11,6 +11,7 @@ import {
   loadSection,
   loadSections,
   loadCSS,
+  getMetadata,
 } from './aem.js';
 
 /**
@@ -40,6 +41,48 @@ async function loadFonts() {
   }
 }
 
+let hasFetchedCustomerData = false;
+let hasProcessedCustomerData = false;
+
+async function fetchCustomerData(customerId) {
+  if (hasFetchedCustomerData) return null;
+  try {
+    const response = await fetch('/all-customer-data.json');
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    const rows = Array.isArray(data) ? data : data.rows || data.data || [];
+    const customerRow = rows.find((row) => row.customer_id === customerId);
+    if (customerRow) {
+      console.log('Customer data found:', customerRow);
+      hasFetchedCustomerData = true;
+      return customerRow;
+    }
+    console.log(`No data found for customer ID: ${customerId}`);
+    return null;
+  } catch (error) {
+    console.error('Error fetching customer data:', error);
+    return null;
+  }
+}
+
+export async function getDataByCustomerId() {
+  if (hasProcessedCustomerData) return;
+  const customerId = getMetadata('customer_id');
+  const main = document.querySelector('main');
+  let newHtml = main.innerHTML.replaceAll('{customer_id}', customerId);
+  const customerData = await fetchCustomerData(customerId);
+  if (customerData) {
+    // Replace each key/value pair in the customer data
+    Object.entries(customerData).forEach(([key, value]) => {
+      if (value != null) {
+        newHtml = newHtml.replaceAll(`{${key}}`, value);
+      }
+    });
+  }
+  main.innerHTML = newHtml;
+  hasProcessedCustomerData = true;
+}
+
 /**
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
@@ -65,6 +108,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  getDataByCustomerId(main);
 }
 
 /**
@@ -80,7 +124,6 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
-
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
