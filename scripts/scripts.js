@@ -44,7 +44,7 @@ async function loadFonts() {
 let hasFetchedCustomerData = false;
 
 async function fetchCustomerData(customerId) {
-  if (hasFetchedCustomerData) return; // prevent multiple fetches
+  if (hasFetchedCustomerData) return null; // prevent multiple fetches
   try {
     const response = await fetch('/all-customer-data.json');
     if (!response.ok) {
@@ -61,37 +61,42 @@ async function fetchCustomerData(customerId) {
       rows = data.data;
     } else {
       console.error('Unexpected JSON structure:', data);
-      return;
+      return null;
     }
     // Find the row that matches the customerId
     const customerRow = rows.find((row) => row.customer_id === customerId);
     if (customerRow) {
       console.log('Customer data found:', customerRow);
       hasFetchedCustomerData = true;
-    } else {
-      console.log(`No data found for customer ID: ${customerId}`);
+      return customerRow;
     }
+    console.log(`No data found for customer ID: ${customerId}`);
+    return null;
   } catch (error) {
     console.error('Error fetching customer data:', error);
+    return null;
   }
 }
 
 export async function getDataByCustomerId() {
   const customerId = getMetadata('customer_id');
-  // replace all instances of {customer_id} with the customerId
-  const html = document.documentElement.innerHTML;
+  const main = document.querySelector('main');
+  const html = main.innerHTML;
   let newHtml = html.replaceAll('{customer_id}', customerId);
   // Fetch customer data and replace all key/value pairs
   const customerData = await fetchCustomerData(customerId);
+  console.log('Customer data for replacement:', customerData);
   if (customerData) {
     // Replace each key/value pair in the customer data
     Object.entries(customerData).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        newHtml = newHtml.replaceAll(`{${key}}`, value);
+        const placeholder = `{${key}}`;
+        console.log(`Replacing ${placeholder} with ${value}`);
+        newHtml = newHtml.replaceAll(placeholder, value);
       }
     });
   }
-  document.documentElement.innerHTML = newHtml;
+  main.innerHTML = newHtml;
 }
 
 /**
@@ -119,6 +124,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  getDataByCustomerId(main);
 }
 
 /**
@@ -134,7 +140,6 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
-  getDataByCustomerId(main); // need to call after body.appear
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
