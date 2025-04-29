@@ -11,6 +11,7 @@ import {
   loadSection,
   loadSections,
   loadCSS,
+  getMetadata,
 } from './aem.js';
 
 /**
@@ -38,6 +39,59 @@ async function loadFonts() {
   } catch (e) {
     // do nothing
   }
+}
+
+let hasFetchedCustomerData = false;
+
+async function fetchCustomerData(customerId) {
+  if (hasFetchedCustomerData) return; // prevent multiple fetches
+  try {
+    const response = await fetch('/all-customer-data.json');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    // make an array of the data from the rows
+    let rows;
+    if (Array.isArray(data)) {
+      rows = data;
+    } else if (data.rows) {
+      rows = data.rows;
+    } else if (data.data) {
+      rows = data.data;
+    } else {
+      console.error('Unexpected JSON structure:', data);
+      return;
+    }
+    // Find the row that matches the customerId
+    const customerRow = rows.find((row) => row.customer_id === customerId);
+    if (customerRow) {
+      console.log('Customer data found:', customerRow);
+      hasFetchedCustomerData = true;
+    } else {
+      console.log(`No data found for customer ID: ${customerId}`);
+    }
+  } catch (error) {
+    console.error('Error fetching customer data:', error);
+  }
+}
+
+export async function getDataByCustomerId() {
+  const customerId = getMetadata('customer_id');
+  // replace all instances of {customer_id} with the customerId
+  const html = document.documentElement.innerHTML;
+  let newHtml = html.replaceAll('{customer_id}', customerId);
+  // Fetch customer data and replace all key/value pairs
+  const customerData = await fetchCustomerData(customerId);
+  if (customerData) {
+    // Replace each key/value pair in the customer data
+    Object.entries(customerData).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        newHtml = newHtml.replaceAll(`{${key}}`, value);
+      }
+    });
+  }
+  document.documentElement.innerHTML = newHtml;
 }
 
 /**
@@ -80,7 +134,7 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
-
+  getDataByCustomerId(main); // need to call after body.appear
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
