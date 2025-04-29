@@ -70,7 +70,6 @@ export async function getDataByCustomerId() {
   const customerId = getMetadata('customer_id');
   const main = document.querySelector('main');
   let newHtml = main.innerHTML.replaceAll('{customer_id}', customerId);
-  
   const customerData = await fetchCustomerData(customerId);
   if (customerData) {
     // Replace each key/value pair in the customer data
