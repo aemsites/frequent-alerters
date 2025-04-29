@@ -42,6 +42,7 @@ async function loadFonts() {
 }
 
 let hasFetchedCustomerData = false;
+let hasProcessedCustomerData = false;
 
 async function fetchCustomerData(customerId) {
   if (hasFetchedCustomerData) return null; // prevent multiple fetches
@@ -79,6 +80,7 @@ async function fetchCustomerData(customerId) {
 }
 
 export async function getDataByCustomerId() {
+  if (hasProcessedCustomerData) return;
   const customerId = getMetadata('customer_id');
   const main = document.querySelector('main');
   const html = main.innerHTML;
@@ -97,6 +99,7 @@ export async function getDataByCustomerId() {
     });
   }
   main.innerHTML = newHtml;
+  hasProcessedCustomerData = true;
 }
 
 /**
