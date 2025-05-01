@@ -122,8 +122,9 @@ async function loadEager(doc) {
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
+    await getDataByCustomerId(main);
   }
-  getDataByCustomerId(main);
+
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
