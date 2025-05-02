@@ -65,21 +65,41 @@ async function fetchCustomerData(customerId) {
   }
 }
 
+function getTextNodes(node, textNodes = []) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    textNodes.push(node);
+  } else {
+    node.childNodes.forEach((child) => getTextNodes(child, textNodes));
+  }
+  return textNodes;
+}
+
 export async function getDataByCustomerId() {
   if (hasProcessedCustomerData) return;
   const customerId = getMetadata('customer_id');
   const main = document.querySelector('main');
-  let newHtml = main.innerHTML.replaceAll('{customer_id}', customerId);
   const customerData = await fetchCustomerData(customerId);
+
+  // Prepare all replacements
+  const replacements = { customer_id: customerId };
   if (customerData) {
-    // Replace each key/value pair in the customer data
     Object.entries(customerData).forEach(([key, value]) => {
-      if (value != null) {
-        newHtml = newHtml.replaceAll(`{${key}}`, value);
-      }
+      if (value != null) replacements[key] = value;
     });
   }
-  main.innerHTML = newHtml;
+
+  // Get all text nodes under main
+  const textNodes = getTextNodes(main);
+
+  // Replace placeholders in each text node
+  textNodes.forEach(node => {
+    let text = node.nodeValue;
+    Object.entries(replacements).forEach(([key, value]) => {
+      text = text.replaceAll(`{${key}}`, value);
+    });
+    node.nodeValue = text;
+  });
+
   hasProcessedCustomerData = true;
 }
 
@@ -108,6 +128,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  getDataByCustomerId(main);
 }
 
 /**
@@ -122,7 +143,6 @@ async function loadEager(doc) {
     decorateMain(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
-    await getDataByCustomerId(main);
   }
 
   try {
