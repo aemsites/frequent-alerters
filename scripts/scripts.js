@@ -92,7 +92,7 @@ export async function getDataByCustomerId() {
   const textNodes = getTextNodes(main);
 
   // Replace placeholders in each text node
-  textNodes.forEach(node => {
+  textNodes.forEach((node) => {
     let text = node.nodeValue;
     Object.entries(replacements).forEach(([key, value]) => {
       text = text.replaceAll(`{${key}}`, value);
