@@ -53,13 +53,14 @@ async function fetchCustomerData(customerId) {
     const rows = Array.isArray(data) ? data : data.rows || data.data || [];
     const customerRow = rows.find((row) => row.customer_id === customerId);
     if (customerRow) {
-      console.log('Customer data found:', customerRow);
       hasFetchedCustomerData = true;
       return customerRow;
     }
+    // eslint-disable-next-line no-console
     console.log(`No data found for customer ID: ${customerId}`);
     return null;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching customer data:', error);
     return null;
   }
