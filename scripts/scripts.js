@@ -53,33 +53,54 @@ async function fetchCustomerData(customerId) {
     const rows = Array.isArray(data) ? data : data.rows || data.data || [];
     const customerRow = rows.find((row) => row.customer_id === customerId);
     if (customerRow) {
-      console.log('Customer data found:', customerRow);
       hasFetchedCustomerData = true;
       return customerRow;
     }
+    // eslint-disable-next-line no-console
     console.log(`No data found for customer ID: ${customerId}`);
     return null;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching customer data:', error);
     return null;
   }
+}
+
+function getTextNodes(node, textNodes = []) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    textNodes.push(node);
+  } else {
+    node.childNodes.forEach((child) => getTextNodes(child, textNodes));
+  }
+  return textNodes;
 }
 
 export async function getDataByCustomerId() {
   if (hasProcessedCustomerData) return;
   const customerId = getMetadata('customer_id');
   const main = document.querySelector('main');
-  let newHtml = main.innerHTML.replaceAll('{customer_id}', customerId);
   const customerData = await fetchCustomerData(customerId);
+
+  // Prepare all replacements
+  const replacements = { customer_id: customerId };
   if (customerData) {
-    // Replace each key/value pair in the customer data
     Object.entries(customerData).forEach(([key, value]) => {
-      if (value != null) {
-        newHtml = newHtml.replaceAll(`{${key}}`, value);
-      }
+      if (value != null) replacements[key] = value;
     });
   }
-  main.innerHTML = newHtml;
+
+  // Get all text nodes under main
+  const textNodes = getTextNodes(main);
+
+  // Replace placeholders in each text node
+  textNodes.forEach((node) => {
+    let text = node.nodeValue;
+    Object.entries(replacements).forEach(([key, value]) => {
+      text = text.replaceAll(`{${key}}`, value);
+    });
+    node.nodeValue = text;
+  });
+
   hasProcessedCustomerData = true;
 }
 
@@ -124,6 +145,7 @@ async function loadEager(doc) {
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
+
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
