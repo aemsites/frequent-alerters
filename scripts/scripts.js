@@ -43,7 +43,6 @@ async function loadFonts() {
 
 let hasFetchedCustomerData = false;
 let hasProcessedCustomerData = false;
-let hasFetchedTopTenData = false;
 
 async function fetchCustomerData(customerId) {
   if (hasFetchedCustomerData) return null;
@@ -66,26 +65,6 @@ async function fetchCustomerData(customerId) {
   }
 }
 
-async function fetchTopTenData() {
-  if (hasFetchedTopTenData) return null;
-  try {
-    const response = await fetch('/power-bi-2025-q1-top10.json');
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    const data = await response.json();
-    const rows = Array.isArray(data) ? data : data.rows || data.data || [];
-    if (rows && rows.length > 0) {
-      console.log('Top 10 data found:', rows);
-      hasFetchedTopTenData = true;
-      return rows;
-    }
-    console.log('No data found for Top 10');
-    return null;
-  } catch (error) {
-    console.error('Error fetching Top 10 data:', error);
-    return null;
-  }
-}
-
 export async function getDataByCustomerId() {
   if (hasProcessedCustomerData) return;
   const customerId = getMetadata('customer_id');
@@ -102,63 +81,6 @@ export async function getDataByCustomerId() {
   }
   main.innerHTML = newHtml;
   hasProcessedCustomerData = true;
-}
-
-export async function getDataForTopTenTable() {
-  try {
-    // Fetch the Top 10 data
-    const topTenData = await fetchTopTenData();
-
-    // Check if data exists
-    if (!topTenData || topTenData.length === 0) {
-      console.log('No Top 10 data available to display.');
-      return;
-    }
-
-    // Create a table element
-    const table = document.createElement('table');
-    table.classList.add('top10-table');
-
-    // Generate table headers based on the keys of the first row
-    const headers = Object.keys(topTenData[0]);
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    headers.forEach((header) => {
-      const th = document.createElement('th');
-      th.textContent = header;
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // Generate table rows for each data entry
-    const tbody = document.createElement('tbody');
-    topTenData.forEach((row) => {
-      const tr = document.createElement('tr');
-      Object.values(row).forEach((value) => {
-        const td = document.createElement('td');
-        td.textContent = value;
-        tr.appendChild(td);
-      });
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-
-    // Replace the literal string "{top_10}" with the generated table
-    const main = document.querySelector('main');
-    if (main) {
-      const placeholder = main.innerHTML.indexOf('{top10}');
-      if (placeholder !== -1) {
-        main.innerHTML = main.innerHTML.replace('{top10}', table.outerHTML);
-      } else {
-        console.error('Placeholder "{top_10}" not found in the main element.');
-      }
-    } else {
-      console.error('Main element not found. Cannot append the Top 10 table.');
-    }
-  } catch (error) {
-    console.error('Error generating Top 10 table:', error);
-  }
 }
 
 /**
@@ -187,11 +109,10 @@ export function decorateMain(main) {
   decorateSections(main);
   decorateBlocks(main);
   getDataByCustomerId(main);
-  getDataForTopTenTable(main);
 }
 
 /**
- * Loads everything needed to get to LCP.
+ * Loadsneeded to get to LCP.
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
