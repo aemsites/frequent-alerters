@@ -34,4 +34,20 @@
   .hero {
     padding: 40px 32px;
   }
+
+  .hero h1 {
+    background: rgb(0 0 0 / 70%);
+    padding: 10px 30px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-style: italic;
+    font-size: var(--heading-font-size-xl);
+  }
+
+  .hero h1 br ~ strong {
+    display: inline-block;
+    margin-top: -20px;
+    font-size: var(--heading-font-size-hero);
+    font-style: normal;
+  }
 }

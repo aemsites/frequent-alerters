@@ -15,13 +15,18 @@
   --background-color: white;
   --light-color: #f8f8f8;
   --dark-color: #505050;
-  --text-color: #131313;
+  --text-color: #353535;
+  --heading-color: #000;
   --link-color: #3b63fb;
   --link-hover-color: #1d3ecf;
 
   /* fonts */
-  --body-font-family: roboto, roboto-fallback, sans-serif;
-  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif;
+
+  /* --body-font-family: roboto, roboto-fallback, sans-serif;
+  --heading-font-family: roboto-condensed, roboto-condensed-fallback, sans-serif; */
+  
+  --body-font-family: "Adobe Clean", roboto-fallback, sans-serif;
+  --heading-font-family: "Adobe Clean", roboto-condensed-fallback, sans-serif;
 
   /* body sizes */
   --body-font-size-m: 22px;
@@ -29,6 +34,7 @@
   --body-font-size-xs: 17px;
 
   /* heading sizes */
+  --heading-font-size-hero: 90px;
   --heading-font-size-xxl: 55px;
   --heading-font-size-xl: 44px;
   --heading-font-size-l: 34px;
@@ -106,6 +112,7 @@ h5,
 h6 {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
+  color: var(--heading-color);
   font-family: var(--heading-font-family);
   font-weight: 600;
   line-height: 1.25;
@@ -127,6 +134,10 @@ pre,
 blockquote {
   margin-top: 0.8em;
   margin-bottom: 0.25em;
+}
+
+body p {
+  line-height: 1.3;
 }
 
 code,
